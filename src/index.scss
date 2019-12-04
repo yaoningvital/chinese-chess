@@ -1,3 +1,8 @@
+@font-face {
+  font-family: LiShu;
+  src: url("./assets/fonts/方正隶书_GBK.ttf");
+}
+
 .game {
   display: flex;
   flex-direction: row;
@@ -13,6 +18,28 @@
     align-items: center;
 
     .board {
+      border-radius: 10px;
+      box-shadow: 0 0 2px 2px #ddd;
+
+      .board-row {
+        .square {
+          display: flex;
+          flex-direction: row;
+          justify-content: center;
+          align-items: center;
+
+          .chess {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            font-family: LiShu;
+            box-shadow: 0px 2px 4px 2px rgba(0, 0, 0, 0.4);
+            //box-shadow: 2px 2px 2px #fff inset;
+            text-shadow: -1px -1px 1px #000, 1px 1px 1px #fff;
+          }
+        }
+      }
     }
   }
 
