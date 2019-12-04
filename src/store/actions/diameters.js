@@ -6,3 +6,10 @@ export function setSquareD (D) {
     D: D
   }
 }
+
+export function setChessD (d) {
+  return {
+    type: actionTypes.SET_CHESS_D,
+    d: d
+  }
+}

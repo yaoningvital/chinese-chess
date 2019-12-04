@@ -2,10 +2,10 @@ import React from 'react'
 import Board from './Board'
 import { connect } from 'react-redux'
 import SetBoardSize from './SetBoardSize'
-import { setSquareD } from '../store/actions/diameters'
+import { setChessD, setSquareD } from '../store/actions/diameters'
 
 function Game (props) {
-  let {D, d, setD} = props
+  let {D, d, setD, setd} = props
   return (
     <div className="game">
       <div className="board-area">
@@ -18,6 +18,7 @@ function Game (props) {
         {/*设置棋盘和棋子大小*/}
         <SetBoardSize
           setD={setD}
+          setd={setd}
         />
       </div>
     </div>
@@ -30,6 +31,12 @@ function setD (dispatch, e) {
   }
 }
 
+function setd (dispatch, e) {
+  if (e.keyCode === 13) {
+    dispatch(setChessD(+e.target.value.trim()))
+  }
+}
+
 const mapStateToProps = state => {
   return {
     D: state.diameters.D,
@@ -39,6 +46,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
   setD: (e) => setD(dispatch, e),
+  setd: (e) => setd(dispatch, e),
 })
 
 export default connect(

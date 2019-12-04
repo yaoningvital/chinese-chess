@@ -1,7 +1,7 @@
 import React from 'react'
 
 function SetBoardSize (props) {
-  let {setD} = props
+  let {setD,setd} = props
   return (
     <div className="set-board-size">
       <h4>设置棋盘格子宽度&棋子宽度</h4>
@@ -11,8 +11,8 @@ function SetBoardSize (props) {
         <span> px</span>
       </div>
       <div>
-        <label>棋子宽度(默认80px)：</label>
-        <input type="number"/>
+        <label>棋子宽度(默认70px)：</label>
+        <input type="number" onKeyUp={setd}/>
         <span> px</span>
       </div>
     </div>
