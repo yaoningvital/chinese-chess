@@ -1,0 +1,43 @@
+.game {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+
+  .board-area {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+
+    .board {
+    }
+  }
+
+  .btn-area {
+    width: 30%;
+
+    > div {
+      background-color: #ddd;
+      border: 1px solid #999;
+      padding: 0 10px 6px 10px;
+
+      h4 {
+        margin: 8px 0;
+      }
+    }
+
+    .set-board-size {
+      > div {
+        padding: 5px 0;
+
+        label {
+          display: inline-block;
+          width: 12em;
+        }
+      }
+    }
+  }
+}
