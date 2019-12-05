@@ -449,6 +449,84 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
       }
     }
   }
+  // 6、如果点击的是“士”
+  else if (chessData.role === 'shi') {
+    // 点击的是红色的“士”
+    if (chessData.side === 0) {
+      for (let i = 0; i <= 2; i++) {
+        for (let j = 3; j <= 5; j++) {
+          if (
+            Math.abs(i - currentRowIndex) === 1 &&
+            Math.abs(j - currentColumnIndex) === 1 &&
+            (
+              currentChesses[i][j] === null ||
+              currentChesses[i][j].side !== chessData.side
+            )
+          ) {
+            ableReceiveSquares.push([i, j])
+          }
+        }
+      }
+    }
+    // 点击的是黑色的“士”
+    else {
+      for (let i = 7; i <= 9; i++) {
+        for (let j = 3; j <= 5; j++) {
+          if (
+            Math.abs(i - currentRowIndex) === 1 &&
+            Math.abs(j - currentColumnIndex) === 1 &&
+            (
+              currentChesses[i][j] === null ||
+              currentChesses[i][j].side !== chessData.side
+            )
+          ) {
+            ableReceiveSquares.push([i, j])
+          }
+        }
+      }
+    }
+  }
+  // 7、如果点击的是“将”
+  else if (chessData.role === 'jiang') {
+    // 点击的是红色的“将”
+    if (chessData.side === 0) {
+      for (let i = 0; i <= 2; i++) {
+        for (let j = 3; j <= 5; j++) {
+          if (
+            (
+              (Math.abs(i - currentRowIndex) === 1 && j === currentColumnIndex) ||
+              (Math.abs(j - currentColumnIndex) === 1 && i === currentRowIndex)
+            ) &&
+            (
+              currentChesses[i][j] === null ||
+              currentChesses[i][j].side !== chessData.side
+            )
+          ) {
+            ableReceiveSquares.push([i, j])
+          }
+        }
+      }
+    }
+    // 点击的是黑色的“将”
+    else {
+      for (let i = 7; i <= 9; i++) {
+        for (let j = 3; j <= 5; j++) {
+          if (
+            (
+              (Math.abs(i - currentRowIndex) === 1 && j === currentColumnIndex) ||
+              (Math.abs(j - currentColumnIndex) === 1 && i === currentRowIndex)
+            ) &&
+            (
+              currentChesses[i][j] === null ||
+              currentChesses[i][j].side !== chessData.side
+            )
+          ) {
+            ableReceiveSquares.push([i, j])
+          }
+        }
+      }
+    }
+  }
   return ableReceiveSquares
 }
 
