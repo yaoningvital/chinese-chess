@@ -9,7 +9,7 @@ function Game (props) {
     D, d, setD, setd, handleClickChess, selectedChessCoordinate, currentStep, history,
     ableReceiveCoordinates
   } = props
- 
+  
   return (
     <div className="game">
       <div className="board-area">
@@ -81,7 +81,7 @@ function handleClickChess (dispatch, chessCoordinate, chessData, currentStep, hi
  * @param history : 当前历史步骤 数组
  */
 function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentStep, history) {
-  let ableReceiveSquares = []
+  let ableReceiveSquares = [] // 所有的落子点的坐标组成的数组 [[0,1],[1,2],...]
   let currentChesses = history[currentStep].chesses // 当前棋子布局
   let [currentRowIndex, currentColumnIndex] = chessCoordinate // 当前点击的棋子的坐标
   // 1、如果点击的是“兵”
@@ -156,6 +156,94 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
               ableReceiveSquares.push([i, j])
             }
           }
+        }
+      }
+    }
+  }
+  // 2、如果点击的是“炮”
+  else if (chessData.role === 'pao') {
+    let leftBridge = [] // 左边的桥点坐标
+    let rightBridge = [] // 右边的桥点坐标
+    let topBridge = [] // 上边的桥点坐标
+    let bottomBridge = [] // 下边的桥点坐标
+    // 找“炮”左边的 移落子点
+    for (let j = currentColumnIndex - 1; j >= 0; j--) {
+      if (currentChesses[currentRowIndex][j] === null) { // 向左移动一步，还在棋盘内 && 当前位置为空
+        ableReceiveSquares.push([currentRowIndex, j])  // 那么这个点是 移落子点
+      } else { // 向左移动一步的位置上，是一个棋子
+        leftBridge = [currentRowIndex, j]
+        break // 不用再往左边遍历了，再往左边的都不是 移落子点 了
+      }
+    }
+    // 找“炮”右边的 移落子点
+    for (let j = currentColumnIndex + 1; j <= 8; j++) {
+      if (currentChesses[currentRowIndex][j] === null) { // 向右移动一步，还在棋盘内 && 当前位置为空
+        ableReceiveSquares.push([currentRowIndex, j])  // 那么这个点是 移落子点
+      } else { // 向右移动一步的位置上，是一个棋子
+        rightBridge = [currentRowIndex, j]
+        break // 不用再往右边遍历了，再往右边的都不是 移落子点 了
+      }
+    }
+    // 找“炮”上边的 移落子点
+    for (let i = currentRowIndex - 1; i >= 0; i--) {
+      if (currentChesses[i][currentColumnIndex] === null) { // 向上移动一步的位置，为空
+        ableReceiveSquares.push([i, currentColumnIndex]) // 那么这个点是 移落子点
+      } else { // 向上移动一步的位置上，是一个棋子
+        topBridge = [i, currentColumnIndex]
+        break
+      }
+    }
+    // 找“炮”下边的 移落子点
+    for (let i = currentRowIndex + 1; i <= 9; i++) {
+      if (currentChesses[i][currentColumnIndex] === null) { // 向下移动一步的位置，为空
+        ableReceiveSquares.push([i, currentColumnIndex]) // 那么这个点是 移落子点
+      } else { // 向下移动一步的位置上，是一个棋子
+        bottomBridge = [i, currentColumnIndex]
+        break
+      }
+    }
+    
+    // 找“炮”左边的 吃落子点
+    if (leftBridge.length > 0) { // 如果有左边的桥点，才可能有左边的 吃落子点
+      for (let j = leftBridge[1] - 1; j >= 0; j--) {
+        if (currentChesses[currentRowIndex][j] !== null) { // 如果向左移动一步的位置，是一个棋子
+          if (currentChesses[currentRowIndex][j].side !== chessData.side) {
+            ableReceiveSquares.push([currentRowIndex, j])
+          }
+          break
+        }
+      }
+    }
+    // 找“炮”右边的 吃落子点
+    if (rightBridge.length > 0) { // 如果有右边的桥点，才可能有右边的 吃落子点
+      for (let j = rightBridge[1] + 1; j <= 8; j++) {
+        if (currentChesses[currentRowIndex][j] !== null) { // 如果向右移动一步的位置，是一个棋子
+          if (currentChesses[currentRowIndex][j].side !== chessData.side) {
+            ableReceiveSquares.push([currentRowIndex, j])
+          }
+          break
+        }
+      }
+    }
+    // 找“炮”上边的 吃落子点
+    if (topBridge.length > 0) { // 如果有上边的桥点，才可能有上边的 吃落子点
+      for (let i = topBridge[0] - 1; i >= 0; i--) {
+        if (currentChesses[i][currentColumnIndex] !== null) { // 如果向上移动一步的位置，是一个棋子
+          if (currentChesses[i][currentColumnIndex].side !== chessData.side) {
+            ableReceiveSquares.push([i, currentColumnIndex])
+          }
+          break
+        }
+      }
+    }
+    // 找“炮”下边的 吃落子点
+    if (bottomBridge.length > 0) { // 如果有下边的桥点，才可能有下边的 吃落子点
+      for (let i = bottomBridge[0] + 1; i <= 9; i++) {
+        if (currentChesses[i][currentColumnIndex] !== null) { // 如果向下移动一步的位置，是一个棋子
+          if (currentChesses[i][currentColumnIndex].side !== chessData.side) {
+            ableReceiveSquares.push([i, currentColumnIndex])
+          }
+          break
         }
       }
     }
