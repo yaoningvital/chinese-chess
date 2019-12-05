@@ -160,7 +160,7 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
       }
     }
   }
-  // 2、如果点击的是“炮”
+  // 2、如果点击的是“炮”（落子点包括： 移落子点 和 吃落子点）
   else if (chessData.role === 'pao') {
     let leftBridge = [] // 左边的桥点坐标
     let rightBridge = [] // 右边的桥点坐标
@@ -248,7 +248,111 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
       }
     }
   }
-  
+  // 3、如果点击的是“车”（落子点包括： 移落子点 和 吃落子点）
+  else if (chessData.role === 'ju') {
+    // 找“车”左边的 落子点
+    for (let j = currentColumnIndex - 1; j >= 0; j--) {
+      if (currentChesses[currentRowIndex][j] === null) { // 向左移动一步，还在棋盘内 && 当前位置为空
+        ableReceiveSquares.push([currentRowIndex, j])  // 那么这个点是 移落子点
+      } else { // 向左移动一步的位置上，是一个棋子
+        if (currentChesses[currentRowIndex][j].side !== chessData.side) { // 是他方的棋子
+          ableReceiveSquares.push([currentRowIndex, j])  // 那么这个点是 吃落子点
+        }
+        break // 不用再往左边遍历了，再往左边的都不是 落子点 了
+      }
+    }
+    // 找“车”右边的 落子点
+    for (let j = currentColumnIndex + 1; j <= 8; j++) {
+      if (currentChesses[currentRowIndex][j] === null) { // 向右移动一步，还在棋盘内 && 当前位置为空
+        ableReceiveSquares.push([currentRowIndex, j])  // 那么这个点是 移落子点
+      } else { // 向右移动一步的位置上，是一个棋子
+        if (currentChesses[currentRowIndex][j].side !== chessData.side) { // 是他方的棋子
+          ableReceiveSquares.push([currentRowIndex, j])  // 那么这个点是 吃落子点
+        }
+        break // 不用再往右边遍历了，再往右边的都不是 落子点 了
+      }
+    }
+    // 找“车”上边的 落子点
+    for (let i = currentRowIndex - 1; i >= 0; i--) {
+      if (currentChesses[i][currentColumnIndex] === null) { // 向上移动一步，还在棋盘内 && 当前位置为空
+        ableReceiveSquares.push([i, currentColumnIndex])  // 那么这个点是 移落子点
+      } else { // 向上移动一步的位置上，是一个棋子
+        if (currentChesses[i][currentColumnIndex].side !== chessData.side) { // 是他方的棋子
+          ableReceiveSquares.push([i, currentColumnIndex])  // 那么这个点是 吃落子点
+        }
+        break // 不用再往上边遍历了，再往上边的都不是 落子点 了
+      }
+    }
+    // 找“车”下边的 落子点
+    for (let i = currentRowIndex + 1; i <= 9; i++) {
+      if (currentChesses[i][currentColumnIndex] === null) { // 向下移动一步，还在棋盘内 && 当前位置为空
+        ableReceiveSquares.push([i, currentColumnIndex])  // 那么这个点是 移落子点
+      } else { // 向下移动一步的位置上，是一个棋子
+        if (currentChesses[i][currentColumnIndex].side !== chessData.side) { // 是他方的棋子
+          ableReceiveSquares.push([i, currentColumnIndex])  // 那么这个点是 吃落子点
+        }
+        break // 不用再往下边遍历了，再往下边的都不是 落子点 了
+      }
+    }
+  }
+  // 4、如果点击的是“马”（落子点包括： 移落子点 和 吃落子点）
+  else if (chessData.role === 'ma') {
+    let maybe = [] // 潜在的落子点位置 （最多8个）
+    for (let i = 0; i <= 9; i++) {
+      for (let j = 0; j <= 8; j++) {
+        let rowD = i - currentRowIndex
+        let columnD = j - currentColumnIndex
+        if (
+          (Math.abs(rowD) === 2 && Math.abs(columnD) === 1) ||
+          (Math.abs(rowD) === 1 && Math.abs(columnD) === 2)
+        ) {
+          maybe.push([i, j])
+        }
+      }
+    }
+    for (let maybeItem of maybe) {
+      if (
+        (maybeItem[0] - currentRowIndex === -2) &&  // 这个潜在落子点 是在这个“马”北边的两个潜在落子点之一
+        currentChesses[currentRowIndex - 1][currentColumnIndex] === null && // 这个“马”的正上方一个点是空格
+        (
+          currentChesses[maybeItem[0]][maybeItem[1]] === null ||
+          currentChesses[maybeItem[0]][maybeItem[1]].side !== chessData.side
+        )
+      ) { // 那么这个潜在落子点 是 真正的落子点
+        ableReceiveSquares.push(maybeItem)
+      }
+      if (
+        (maybeItem[1] - currentColumnIndex === -2) && // 这个潜在落子点 是在这个“马”西边的两个潜在落子点之一
+        currentChesses[currentRowIndex][currentColumnIndex - 1] === null && // 这个“马”的左边一个点是空格
+        (
+          currentChesses[maybeItem[0]][maybeItem[1]] === null ||
+          currentChesses[maybeItem[0]][maybeItem[1]].side !== chessData.side
+        )
+      ) { // 那么这个潜在落子点 是 真正的落子点
+        ableReceiveSquares.push(maybeItem)
+      }
+      if (
+        (maybeItem[0] - currentRowIndex === 2) &&  // 这个潜在落子点 是在这个“马”南边的两个潜在落子点之一
+        currentChesses[currentRowIndex + 1][currentColumnIndex] === null && // 这个“马”的正下方一个点是空格
+        (
+          currentChesses[maybeItem[0]][maybeItem[1]] === null ||
+          currentChesses[maybeItem[0]][maybeItem[1]].side !== chessData.side
+        )
+      ) { // 那么这个潜在落子点 是 真正的落子点
+        ableReceiveSquares.push(maybeItem)
+      }
+      if (
+        (maybeItem[1] - currentColumnIndex === 2) && // 这个潜在落子点 是在这个“马”东边的两个潜在落子点之一
+        currentChesses[currentRowIndex][currentColumnIndex + 1] === null && // 这个“马”的右边一个点是空格
+        (
+          currentChesses[maybeItem[0]][maybeItem[1]] === null ||
+          currentChesses[maybeItem[0]][maybeItem[1]].side !== chessData.side
+        )
+      ) { // 那么这个潜在落子点 是 真正的落子点
+        ableReceiveSquares.push(maybeItem)
+      }
+    }
+  }
   return ableReceiveSquares
 }
 

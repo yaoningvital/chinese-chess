@@ -10,7 +10,6 @@ function Board (props) {
     ableReceiveCoordinates
   } = props
   
-  console.log('ableReceiveCoordinates:', ableReceiveCoordinates)
   
   return (
     <div
