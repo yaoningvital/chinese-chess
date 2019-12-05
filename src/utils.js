@@ -70,3 +70,22 @@ export const chessDefault = [
     {side: 1, role: 'ju', name: '車'},
   ],
 ]
+
+/**
+ * 判断传入的点（坐标：rowIndex, columnIndex）是不是传入的 落子点（ableReceiveCoordinates）中的一个，是 返回 true
+ * @param ableReceiveCoordinates
+ * @param rowIndex
+ * @param columnIndex
+ * @returns {boolean}
+ */
+export function isOneOfAbleReceive (ableReceiveCoordinates, rowIndex, columnIndex) {
+  let isOneOfAbleReceive = false
+  for (let ableReceiveItem of ableReceiveCoordinates) {
+    if (ableReceiveItem[0] === rowIndex && ableReceiveItem[1] === columnIndex) {
+      isOneOfAbleReceive = true
+      break
+    }
+  }
+  
+  return isOneOfAbleReceive
+}
