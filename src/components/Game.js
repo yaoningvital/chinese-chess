@@ -89,10 +89,10 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
     // 点击的是红色的“兵”
     if (chessData.side === 0) {
       if (currentRowIndex <= 4) { // 兵还没有过河
-        for (let i = 0; i < currentChesses.length; i++) {
-          for (let j = 0; j < currentChesses[i].length; j++) {
+        for (let i = 4; i <= 5; i++) {
+          for (let j = 0; j <= 8; j += 2) {
             if (i === currentRowIndex + 1 &&
-              j === currentColumnIndex &&  // 棋盘中有这么一个点
+              j === currentColumnIndex &&
               (
                 currentChesses[i][j] === null ||   // 这个点为空
                 currentChesses[i][j].side !== chessData.side  // 或者这个点上的棋子是 他方的棋子
@@ -103,8 +103,8 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
           }
         }
       } else { // 兵已经过河
-        for (let i = 0; i < currentChesses.length; i++) {
-          for (let j = 0; j < currentChesses[i].length; j++) {
+        for (let i = 5; i <= 9; i++) {
+          for (let j = 0; j <= 8; j++) {
             if (
               (
                 (i === currentRowIndex && Math.abs(j - currentColumnIndex) === 1) ||  // 与 点击的棋子 左右相邻的位置
@@ -126,10 +126,10 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
     // 点击的是黑色的“兵”
     else if (chessData.side === 1) {
       if (currentRowIndex >= 5) { // 兵还没有过河
-        for (let i = 0; i < currentChesses.length; i++) {
-          for (let j = 0; j < currentChesses[i].length; j++) {
+        for (let i = 4; i <= 5; i++) {
+          for (let j = 0; j <= 8; j += 2) {
             if (i === currentRowIndex - 1 &&
-              j === currentColumnIndex &&  // 棋盘中有这么一个点
+              j === currentColumnIndex &&  // 是它正前方的一个位置
               (
                 currentChesses[i][j] === null ||   // 这个点为空
                 currentChesses[i][j].side !== chessData.side  // 或者这个点上的棋子是 他方的棋子
@@ -140,8 +140,8 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
           }
         }
       } else { // 兵已经过河
-        for (let i = 0; i < currentChesses.length; i++) {
-          for (let j = 0; j < currentChesses[i].length; j++) {
+        for (let i = 0; i <= 4; i++) {
+          for (let j = 0; j <= 8; j++) {
             if (
               (
                 (i === currentRowIndex && Math.abs(j - currentColumnIndex) === 1) ||  // 与 点击的棋子 左右相邻的位置
@@ -160,7 +160,7 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
       }
     }
   }
-  // 2、如果点击的是“炮”（落子点包括： 移落子点 和 吃落子点）
+  // 2、如果点击的是“炮”
   else if (chessData.role === 'pao') {
     let leftBridge = [] // 左边的桥点坐标
     let rightBridge = [] // 右边的桥点坐标
@@ -248,7 +248,7 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
       }
     }
   }
-  // 3、如果点击的是“车”（落子点包括： 移落子点 和 吃落子点）
+  // 3、如果点击的是“车”
   else if (chessData.role === 'ju') {
     // 找“车”左边的 落子点
     for (let j = currentColumnIndex - 1; j >= 0; j--) {
@@ -295,7 +295,7 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
       }
     }
   }
-  // 4、如果点击的是“马”（落子点包括： 移落子点 和 吃落子点）
+  // 4、如果点击的是“马”
   else if (chessData.role === 'ma') {
     let maybe = [] // 潜在的落子点位置 （最多8个）
     for (let i = 0; i <= 9; i++) {
