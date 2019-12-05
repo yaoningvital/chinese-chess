@@ -353,6 +353,102 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
       }
     }
   }
+  // 5、如果点击的是“相”
+  else if (chessData.role === 'xiang') {
+    // 点击的是红色的“相”
+    if (chessData.side === 0) {
+      for (let i = 0; i <= 4; i += 2) {
+        for (let j = 0; j <= 8; j += 2) {
+          if (i - currentRowIndex === -2 && j - currentColumnIndex === -2 &&  // 当前点的 左上角 的潜在落子点
+            currentChesses[currentRowIndex - 1][currentColumnIndex - 1] === null &&  // 这个“田”的中心点为空格
+            (
+              currentChesses[i][j] === null ||  // 这个潜在落子点的位置为空
+              currentChesses[i][j].side !== chessData.side  // 这个位置的棋子为他方棋子
+            )
+          ) {
+            ableReceiveSquares.push([i, j])
+          }
+          
+          if (i - currentRowIndex === 2 && j - currentColumnIndex === -2 &&  // 当前点的 左下角 的潜在落子点
+            currentChesses[currentRowIndex + 1][currentColumnIndex - 1] === null &&  // 这个“田”的中心点为空格
+            (
+              currentChesses[i][j] === null ||  // 这个潜在落子点的位置为空
+              currentChesses[i][j].side !== chessData.side  // 这个位置的棋子为他方棋子
+            )
+          ) {
+            ableReceiveSquares.push([i, j])
+          }
+          
+          if (i - currentRowIndex === -2 && j - currentColumnIndex === 2 &&  // 当前点的 右上角 的潜在落子点
+            currentChesses[currentRowIndex - 1][currentColumnIndex + 1] === null &&  // 这个“田”的中心点为空格
+            (
+              currentChesses[i][j] === null ||  // 这个潜在落子点的位置为空
+              currentChesses[i][j].side !== chessData.side  // 这个位置的棋子为他方棋子
+            )
+          ) {
+            ableReceiveSquares.push([i, j])
+          }
+          
+          if (i - currentRowIndex === 2 && j - currentColumnIndex === 2 &&  // 当前点的 右下角 的潜在落子点
+            currentChesses[currentRowIndex + 1][currentColumnIndex + 1] === null &&  // 这个“田”的中心点为空格
+            (
+              currentChesses[i][j] === null ||  // 这个潜在落子点的位置为空
+              currentChesses[i][j].side !== chessData.side  // 这个位置的棋子为他方棋子
+            )
+          ) {
+            ableReceiveSquares.push([i, j])
+          }
+        }
+      }
+      
+    }
+    // 点击的是黑色的“相”
+    else {
+      for (let i = 5; i <= 9; i += 2) {
+        for (let j = 0; j <= 8; j += 2) {
+          if (i - currentRowIndex === -2 && j - currentColumnIndex === -2 &&  // 当前点的 左上角 的潜在落子点
+            currentChesses[currentRowIndex - 1][currentColumnIndex - 1] === null &&  // 这个“田”的中心点为空格
+            (
+              currentChesses[i][j] === null ||  // 这个潜在落子点的位置为空
+              currentChesses[i][j].side !== chessData.side  // 这个位置的棋子为他方棋子
+            )
+          ) {
+            ableReceiveSquares.push([i, j])
+          }
+          
+          if (i - currentRowIndex === 2 && j - currentColumnIndex === -2 &&  // 当前点的 左下角 的潜在落子点
+            currentChesses[currentRowIndex + 1][currentColumnIndex - 1] === null &&  // 这个“田”的中心点为空格
+            (
+              currentChesses[i][j] === null ||  // 这个潜在落子点的位置为空
+              currentChesses[i][j].side !== chessData.side  // 这个位置的棋子为他方棋子
+            )
+          ) {
+            ableReceiveSquares.push([i, j])
+          }
+          
+          if (i - currentRowIndex === -2 && j - currentColumnIndex === 2 &&  // 当前点的 右上角 的潜在落子点
+            currentChesses[currentRowIndex - 1][currentColumnIndex + 1] === null &&  // 这个“田”的中心点为空格
+            (
+              currentChesses[i][j] === null ||  // 这个潜在落子点的位置为空
+              currentChesses[i][j].side !== chessData.side  // 这个位置的棋子为他方棋子
+            )
+          ) {
+            ableReceiveSquares.push([i, j])
+          }
+          
+          if (i - currentRowIndex === 2 && j - currentColumnIndex === 2 &&  // 当前点的 右下角 的潜在落子点
+            currentChesses[currentRowIndex + 1][currentColumnIndex + 1] === null &&  // 这个“田”的中心点为空格
+            (
+              currentChesses[i][j] === null ||  // 这个潜在落子点的位置为空
+              currentChesses[i][j].side !== chessData.side  // 这个位置的棋子为他方棋子
+            )
+          ) {
+            ableReceiveSquares.push([i, j])
+          }
+        }
+      }
+    }
+  }
   return ableReceiveSquares
 }
 
