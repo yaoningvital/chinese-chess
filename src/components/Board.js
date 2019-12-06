@@ -7,7 +7,7 @@ import { isOneOfAbleReceive } from '../utils'
 function Board (props) {
   let {
     D, d, handleClickChess, selectedChessCoordinate, currentStep, history,
-    ableReceiveCoordinates, moveChess,lostPieces
+    ableReceiveCoordinates, moveChess
   } = props
   
   let currentChesses = history[currentStep].chesses
@@ -53,7 +53,6 @@ function Board (props) {
                       history={history}
                       isAbleReceive={isAbleReceive}
                       moveChess={moveChess}
-                      lostPieces={lostPieces}
                     />
                   )
                 })

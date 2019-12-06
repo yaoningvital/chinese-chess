@@ -42,10 +42,3 @@ export function setHistory (history) {
     history
   }
 }
-
-export function setLostPieces (lostPieces) {
-  return {
-    type: actionTypes.SET_LOST_PIECES,
-    lostPieces
-  }
-}

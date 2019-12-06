@@ -89,3 +89,16 @@ export function isOneOfAbleReceive (ableReceiveCoordinates, rowIndex, columnInde
   
   return isOneOfAbleReceive
 }
+
+export function getWinner (currentStep, history) {
+  let winner = null
+  let [side0Lost, side1Lost] = history[currentStep].lostPieces
+  
+  if (side0Lost.length > 0 && side0Lost[side0Lost.length - 1].role === 'jiang') {
+    winner = '將'
+  } else if (side1Lost.length > 0 && side1Lost[side1Lost.length - 1].role === 'jiang') {
+    winner = '帥'
+  }
+  
+  return winner
+}

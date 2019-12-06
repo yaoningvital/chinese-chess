@@ -5,15 +5,16 @@ import SetBoardSize from './SetBoardSize'
 import NextPlayer from './NextPlayer'
 import History from './History'
 import LostPieces from './LostPieces'
+import Winner from './Winner'
 import {
   setAbleReceiveCoordinates,
   setChessD,
   setCurrentStep,
   setHistory,
-  setLostPieces,
   setSquareD,
   updateSelectedChessCoordinate
 } from '../store/actions'
+import { getWinner } from '../utils'
 import _ from 'lodash'
 import downAudio from '../assets/audio/down.wav'
 import clickAudio from '../assets/audio/click.wav'
@@ -24,7 +25,7 @@ import jiangJunAudio from '../assets/audio/jiangjun.mp3'
 function Game (props) {
   let {
     D, d, setD, setd, handleClickChess, selectedChessCoordinate, currentStep, history,
-    ableReceiveCoordinates, moveChess, lostPieces
+    ableReceiveCoordinates, moveChess, lostPieces, backTo
   } = props
   
   return (
@@ -43,13 +44,23 @@ function Game (props) {
         />
       </div>
       <div className="btn-area">
+        {/*赢家是*/}
+        <Winner
+          currentStep={currentStep}
+          history={history}
+        />
         {/*  下一步*/}
         <NextPlayer currentStep={currentStep}/>
         {/*双方被吃掉的子*/}
-        <LostPieces lostPieces={lostPieces}/>
+        <LostPieces
+          currentStep={currentStep}
+          history={history}
+        />
         {/*  历史记录*/}
         <History
+          currentStep={currentStep}
           history={history}
+          backTo={backTo}
         />
         {/*设置棋盘和棋子大小*/}
         <SetBoardSize
@@ -96,6 +107,8 @@ function setd (dispatch, e) {
  * @param chessData
  */
 function handleClickChess (dispatch, chessCoordinate, chessData, currentStep, history) {
+  let winner = getWinner(currentStep, history)
+  if (winner) return  // 已经有人胜出
   let nextSide = currentStep % 2 === 0 ? 1 : 0 // 当前玩家的 side
   if (chessData.side !== nextSide) return  // 只能点当前持方的棋子
   
@@ -105,7 +118,8 @@ function handleClickChess (dispatch, chessCoordinate, chessData, currentStep, hi
   // 1、改变被选中棋子的样式
   dispatch(updateSelectedChessCoordinate([rowIndex, columnIndex]))
   // 2、找落子点
-  let ableReceiveCoordinates = getAbleReceiveSquares(dispatch, chessCoordinate, chessData, currentStep, history)
+  let currentChesses = history[currentStep].chesses // 当前棋子布局
+  let ableReceiveCoordinates = getAbleReceiveSquares(dispatch, chessCoordinate, chessData, currentChesses)
   dispatch(setAbleReceiveCoordinates(ableReceiveCoordinates))
 }
 
@@ -114,12 +128,10 @@ function handleClickChess (dispatch, chessCoordinate, chessData, currentStep, hi
  * @param dispatch
  * @param chessCoordinate : 当前选中棋子的坐标 [0,0]
  * @param chessData : 当前选中棋子的数据 {}
- * @param currentStep : 当前步骤
- * @param history : 当前历史步骤 数组
+ * @param currentChesses : 当前棋子布局
  */
-function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentStep, history) {
+function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentChesses) {
   let ableReceiveSquares = [] // 所有的落子点的坐标组成的数组 [[0,1],[1,2],...]
-  let currentChesses = history[currentStep].chesses // 当前棋子布局
   let [currentRowIndex, currentColumnIndex] = chessCoordinate // 当前点击的棋子的坐标
   // 1、如果点击的是“兵”
   if (chessData.role === 'bing') {
@@ -568,38 +580,47 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
 }
 
 
-function moveChess (dispatch, isAbleReceive, currentStep, history, selectedChessCoordinate, dropGuyCoordinate, lostPieces) {
+function moveChess (dispatch, isAbleReceive, currentStep, history, selectedChessCoordinate, dropGuyCoordinate) {
+  if (!isAbleReceive) return
   
-  if (isAbleReceive) { // 如果这个格子是一个落子点
-    let [dragGuyX, dragGuyY] = selectedChessCoordinate // 当前要移动的那个棋子的坐标
-    let [dropGuyX, dropGuyY] = dropGuyCoordinate // 要放到的格子的坐标
-    
-    let chesses = _.cloneDeep(history[currentStep].chesses)  // 当前棋子布局
-    let dragGuyData = _.cloneDeep(chesses[dragGuyX][dragGuyY]) // 要移动的那个棋子的数据
-    // 1、原来的位置 置为 空格
-    chesses[dragGuyX][dragGuyY] = null
-    // 2、新位置上如果有棋子，那么这个就被吃掉了。把被吃掉的棋子放到 lostPieces 中
-    if (chesses[dropGuyX][dropGuyY]) {
-      playEatAudio()
-      
-      let lost = _.cloneDeep(chesses[dropGuyX][dropGuyY])
-      lostPieces[lost.side].push(lost)
-    } else {
-      playDownAudio()
-    }
-    // 3、把棋子放到新位置上
-    chesses[dropGuyX][dropGuyY] = dragGuyData // 要放入的位置 放入 之前的要移动的那个棋子
-    
-    let new_history = _.cloneDeep(history).slice(0, currentStep + 1)
-    new_history.push({chesses: chesses})
-    
-    dispatch(setAbleReceiveCoordinates([]))
-    dispatch(setCurrentStep(currentStep + 1))
-    dispatch(setHistory(new_history))
-    dispatch(updateSelectedChessCoordinate([]))
-    dispatch(setLostPieces(lostPieces))
-    
-    // 4、判断当前有没有 将对方的军
+  // 这个格子是一个落子点
+  let [dragGuyX, dragGuyY] = selectedChessCoordinate // 当前要移动的那个棋子的坐标
+  let [dropGuyX, dropGuyY] = dropGuyCoordinate // 要放到的格子的坐标
+  
+  let chesses = _.cloneDeep(history[currentStep].chesses)  // 当前棋子布局
+  let dragGuyData = _.cloneDeep(chesses[dragGuyX][dragGuyY]) // 要移动的那个棋子的数据
+  let lostPieces = _.cloneDeep(history[currentStep].lostPieces)  // 当前已经损失了的棋子
+  let lost = null // 被吃掉的棋子
+  
+  // 1、原来的位置 置为 空格
+  chesses[dragGuyX][dragGuyY] = null
+  // 2、新位置上如果有棋子，那么这个就被吃掉了。把被吃掉的棋子放到 lostPieces 中
+  if (chesses[dropGuyX][dropGuyY]) {
+    lost = _.cloneDeep(chesses[dropGuyX][dropGuyY])
+    lostPieces[lost.side].push(lost)
+  } else {
+    playDownAudio()
+  }
+  // 3、把棋子放到新位置上
+  chesses[dropGuyX][dropGuyY] = dragGuyData // 要放入的位置 放入 之前的要移动的那个棋子
+  
+  let new_history = _.cloneDeep(history).slice(0, currentStep + 1)
+  new_history.push({
+    chesses: chesses,
+    lostPieces: lostPieces
+  })
+  
+  dispatch(setAbleReceiveCoordinates([]))
+  dispatch(setCurrentStep(currentStep + 1))
+  dispatch(setHistory(new_history))
+  dispatch(updateSelectedChessCoordinate([]))
+  
+  // 4、判断当前有没有 将对方的军
+  let ableCaptureGeneral = isAbleCaptureGeneral(dispatch, chesses, dragGuyData.side)
+  if (ableCaptureGeneral) {
+    playJiangJunAudio()
+  } else if (lost) {
+    playEatAudio()
   }
 }
 
@@ -635,6 +656,47 @@ function playJiangJunAudio () {
   jiangJunAudio.play()
 }
 
+/**
+ * 判断在当前棋子布局中，当前进攻方是否将对方军了 （判断对方将军 是否是 当前方棋子的落子点之一）
+ * @param chesses : 当前棋子布局
+ * @param currentSide : 当前进攻方
+ */
+function isAbleCaptureGeneral (dispatch, chesses, currentSide) {
+  let allAbleReceives = [] // 当前方 所有棋子的 所有落子点 的坐标 组成的数组
+  let theOtherSideJiangCoordinate = [] // 对方 将 的位置坐标
+  for (let i = 0; i < chesses.length; i++) {
+    for (let j = 0; j < chesses[i].length; j++) {
+      if (chesses[i][j] && chesses[i][j].side === currentSide) { // 是当前方的棋子
+        let ableCells = getAbleReceiveSquares(dispatch, [i, j], chesses[i][j], chesses)
+        allAbleReceives = allAbleReceives.concat(ableCells)
+      } else if (chesses[i][j] && chesses[i][j].side !== currentSide && chesses[i][j].role === 'jiang') { // 找到对方将军的位置
+        theOtherSideJiangCoordinate = [i, j]
+      }
+    }
+  }
+  
+  let inAbleReceives = false // 假设对方的将军的位置 不是 当前方的落子点之一
+  for (let ableItem of allAbleReceives) {
+    if (ableItem[0] === theOtherSideJiangCoordinate[0] && ableItem[1] === theOtherSideJiangCoordinate[1]) {
+      inAbleReceives = true
+      break
+    }
+  }
+  
+  return inAbleReceives
+  
+}
+
+/**
+ * 处理回退到某一步
+ * @param dispatch
+ * @param stepNum
+ * @param history
+ */
+function handleBackTo (dispatch, stepNum, history) {
+  dispatch(setCurrentStep(stepNum))
+}
+
 const mapStateToProps = state => {
   return {
     D: state.diameters.D,
@@ -643,7 +705,6 @@ const mapStateToProps = state => {
     currentStep: state.currentStep,
     history: state.history,
     ableReceiveCoordinates: state.ableReceiveCoordinates,
-    lostPieces: state.lostPieces,
   }
 }
 
@@ -651,7 +712,8 @@ const mapDispatchToProps = dispatch => ({
   setD: (e) => setD(dispatch, e),
   setd: (e) => setd(dispatch, e),
   handleClickChess: (chessCoordinate, chessData, currentStep, history) => handleClickChess(dispatch, chessCoordinate, chessData, currentStep, history),
-  moveChess: (isAbleReceive, currentStep, history, selectedChessCoordinate, dropGuyCoordinate, lostPieces) => moveChess(dispatch, isAbleReceive, currentStep, history, selectedChessCoordinate, dropGuyCoordinate, lostPieces)
+  moveChess: (isAbleReceive, currentStep, history, selectedChessCoordinate, dropGuyCoordinate, lostPieces) => moveChess(dispatch, isAbleReceive, currentStep, history, selectedChessCoordinate, dropGuyCoordinate, lostPieces),
+  backTo: (stepNum, history) => handleBackTo(dispatch, stepNum, history)
 })
 
 export default connect(
