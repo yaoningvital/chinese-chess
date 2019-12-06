@@ -2,7 +2,10 @@ import React from 'react'
 import chessBgImg from '../assets/images/chess-bg.png'
 
 function Chess (props) {
-  let {d, rowIndex, columnIndex, data, handleClickChess, selectedChessCoordinate, currentStep, history} = props
+  let {
+    d, rowIndex, columnIndex, data, handleClickChess, selectedChessCoordinate,
+    currentStep, history,
+  } = props
   let color = ''
   // 设置棋子显示的颜色
   if (data.side === 0) {
@@ -26,6 +29,7 @@ function Chess (props) {
     backgroundSize = `${d * 1.1}px ${d * 1.1}px`
     boxShadow = '0px 4px 6px 4px rgba(0, 0, 0, 0.5)'
   }
+  
   return (
     <div
       className="chess"

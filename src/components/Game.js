@@ -68,12 +68,13 @@ function Game (props) {
           setd={setd}
         />
         {/*音频文件*/}
-        <audio src={downAudio} id="down-audio"></audio>
-        <audio src={clickAudio} id="click-audio"></audio>
-        <audio src={eatAudio} id="eat-audio"></audio>
-        <audio src={jiangJunAudio} id="jiang-jun-audio"></audio>
+        <audio src={downAudio} id="down-audio"/>
+        <audio src={clickAudio} id="click-audio"/>
+        <audio src={eatAudio} id="eat-audio"/>
+        <audio src={jiangJunAudio} id="jiang-jun-audio"/>
       </div>
     </div>
+  
   )
 }
 
