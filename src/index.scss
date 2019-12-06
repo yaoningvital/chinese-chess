@@ -49,6 +49,7 @@
       background-color: #ddd;
       border: 1px solid #999;
       padding: 0 10px 6px 10px;
+      margin-bottom: 10px;
 
       h4 {
         margin: 8px 0;
@@ -62,6 +63,66 @@
         label {
           display: inline-block;
           width: 12em;
+        }
+      }
+    }
+
+    .next-player {
+      .wrap {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        align-items: center;
+
+        div {
+          width: 50px;
+          height: 50px;
+          border-radius: 25px;
+          background-image: url("./assets/images/chess-bg.png");
+          background-size: 50px 50px;
+          font-size: 37.5px;
+          font-family: LiShu;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-right: 10px;
+
+          &.current-player {
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            background-size: 60px 60px;
+            font-size: 45px;
+          }
+        }
+      }
+    }
+
+    .lost-pieces {
+      .wrap {
+        .group {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: flex-start;
+          align-items: center;
+          margin: 5px 0;
+          border: 1px dashed #999999;
+
+          div {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background-image: url("./assets/images/chess-bg.png");
+            background-size: 50px 50px;
+            font-size: 37.5px;
+            font-family: LiShu;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 5px 5px 5px 5px;
+          }
         }
       }
     }

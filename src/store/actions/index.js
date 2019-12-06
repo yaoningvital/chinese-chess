@@ -28,3 +28,24 @@ export function setAbleReceiveCoordinates (ableReceiveCoordinates) {
     ableReceiveCoordinates
   }
 }
+
+export function setCurrentStep (currentStep) {
+  return {
+    type: actionTypes.SET_CURRENT_STEP,
+    currentStep
+  }
+}
+
+export function setHistory (history) {
+  return {
+    type: actionTypes.SET_HISTORY,
+    history
+  }
+}
+
+export function setLostPieces (lostPieces) {
+  return {
+    type: actionTypes.SET_LOST_PIECES,
+    lostPieces
+  }
+}

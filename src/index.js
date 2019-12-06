@@ -5,17 +5,31 @@ import Game from './components/Game';
 import * as serviceWorker from './serviceWorker';
 import { Provider } from 'react-redux'
 import { applyMiddleware, createStore } from 'redux'
+import { persistReducer, persistStore } from 'redux-persist'
+import { PersistGate } from 'redux-persist/integration/react'
+import storage from 'redux-persist/lib/storage' // defaults to localStorage for web
 import rootReducer from './store/reducers'
 import { composeWithDevTools } from 'redux-devtools-extension';
 
+const persistConfig = {
+  key: 'root',
+  storage,
+}
 
-const store = createStore(rootReducer, composeWithDevTools(
+const persistedReducer = persistReducer(persistConfig, rootReducer)
+
+
+let store = createStore(persistedReducer, composeWithDevTools(
   applyMiddleware()
 ))
+let persistor = persistStore(store)
+
 
 ReactDOM.render(
   <Provider store={store}>
-    <Game/>
+    <PersistGate loading={null} persistor={persistor}>
+      <Game/>
+    </PersistGate>
   </Provider>,
   document.getElementById('root'));
 

@@ -1,15 +1,16 @@
 import React from 'react'
 import chessBoardBgImg from '../assets/images/chess-board-bg.png'
 import Square from './Square'
-import { chessDefault, isOneOfAbleReceive } from '../utils'
+import { isOneOfAbleReceive } from '../utils'
 
 
 function Board (props) {
   let {
     D, d, handleClickChess, selectedChessCoordinate, currentStep, history,
-    ableReceiveCoordinates
+    ableReceiveCoordinates, moveChess,lostPieces
   } = props
   
+  let currentChesses = history[currentStep].chesses
   
   return (
     <div
@@ -22,7 +23,7 @@ function Board (props) {
       }}
     >
       {
-        chessDefault.map((rowData, rowIndex) => {
+        currentChesses.map((rowData, rowIndex) => {
           return (
             <div
               key={rowIndex}
@@ -51,6 +52,8 @@ function Board (props) {
                       currentStep={currentStep}
                       history={history}
                       isAbleReceive={isAbleReceive}
+                      moveChess={moveChess}
+                      lostPieces={lostPieces}
                     />
                   )
                 })

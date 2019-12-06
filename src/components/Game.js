@@ -2,12 +2,29 @@ import React from 'react'
 import Board from './Board'
 import { connect } from 'react-redux'
 import SetBoardSize from './SetBoardSize'
-import { setAbleReceiveCoordinates, setChessD, setSquareD, updateSelectedChessCoordinate } from '../store/actions'
+import NextPlayer from './NextPlayer'
+import History from './History'
+import LostPieces from './LostPieces'
+import {
+  setAbleReceiveCoordinates,
+  setChessD,
+  setCurrentStep,
+  setHistory,
+  setLostPieces,
+  setSquareD,
+  updateSelectedChessCoordinate
+} from '../store/actions'
+import _ from 'lodash'
+import downAudio from '../assets/audio/down.wav'
+import clickAudio from '../assets/audio/click.wav'
+import eatAudio from '../assets/audio/eat.mp3'
+import jiangJunAudio from '../assets/audio/jiangjun.mp3'
+
 
 function Game (props) {
   let {
     D, d, setD, setd, handleClickChess, selectedChessCoordinate, currentStep, history,
-    ableReceiveCoordinates
+    ableReceiveCoordinates, moveChess, lostPieces
   } = props
   
   return (
@@ -21,14 +38,29 @@ function Game (props) {
           currentStep={currentStep}
           history={history}
           ableReceiveCoordinates={ableReceiveCoordinates}
+          moveChess={moveChess}
+          lostPieces={lostPieces}
         />
       </div>
       <div className="btn-area">
+        {/*  下一步*/}
+        <NextPlayer currentStep={currentStep}/>
+        {/*双方被吃掉的子*/}
+        <LostPieces lostPieces={lostPieces}/>
+        {/*  历史记录*/}
+        <History
+          history={history}
+        />
         {/*设置棋盘和棋子大小*/}
         <SetBoardSize
           setD={setD}
           setd={setd}
         />
+        {/*音频文件*/}
+        <audio src={downAudio} id="down-audio"></audio>
+        <audio src={clickAudio} id="click-audio"></audio>
+        <audio src={eatAudio} id="eat-audio"></audio>
+        <audio src={jiangJunAudio} id="jiang-jun-audio"></audio>
       </div>
     </div>
   )
@@ -64,6 +96,11 @@ function setd (dispatch, e) {
  * @param chessData
  */
 function handleClickChess (dispatch, chessCoordinate, chessData, currentStep, history) {
+  let nextSide = currentStep % 2 === 0 ? 1 : 0 // 当前玩家的 side
+  if (chessData.side !== nextSide) return  // 只能点当前持方的棋子
+  
+  playClickChessAudio() // 播放选择一个棋子的声音
+  
   let [rowIndex, columnIndex] = chessCoordinate
   // 1、改变被选中棋子的样式
   dispatch(updateSelectedChessCoordinate([rowIndex, columnIndex]))
@@ -530,6 +567,74 @@ function getAbleReceiveSquares (dispatch, chessCoordinate, chessData, currentSte
   return ableReceiveSquares
 }
 
+
+function moveChess (dispatch, isAbleReceive, currentStep, history, selectedChessCoordinate, dropGuyCoordinate, lostPieces) {
+  
+  if (isAbleReceive) { // 如果这个格子是一个落子点
+    let [dragGuyX, dragGuyY] = selectedChessCoordinate // 当前要移动的那个棋子的坐标
+    let [dropGuyX, dropGuyY] = dropGuyCoordinate // 要放到的格子的坐标
+    
+    let chesses = _.cloneDeep(history[currentStep].chesses)  // 当前棋子布局
+    let dragGuyData = _.cloneDeep(chesses[dragGuyX][dragGuyY]) // 要移动的那个棋子的数据
+    // 1、原来的位置 置为 空格
+    chesses[dragGuyX][dragGuyY] = null
+    // 2、新位置上如果有棋子，那么这个就被吃掉了。把被吃掉的棋子放到 lostPieces 中
+    if (chesses[dropGuyX][dropGuyY]) {
+      playEatAudio()
+      
+      let lost = _.cloneDeep(chesses[dropGuyX][dropGuyY])
+      lostPieces[lost.side].push(lost)
+    } else {
+      playDownAudio()
+    }
+    // 3、把棋子放到新位置上
+    chesses[dropGuyX][dropGuyY] = dragGuyData // 要放入的位置 放入 之前的要移动的那个棋子
+    
+    let new_history = _.cloneDeep(history).slice(0, currentStep + 1)
+    new_history.push({chesses: chesses})
+    
+    dispatch(setAbleReceiveCoordinates([]))
+    dispatch(setCurrentStep(currentStep + 1))
+    dispatch(setHistory(new_history))
+    dispatch(updateSelectedChessCoordinate([]))
+    dispatch(setLostPieces(lostPieces))
+    
+    // 4、判断当前有没有 将对方的军
+  }
+}
+
+/**
+ * 播放落子的声音
+ */
+function playDownAudio () {
+  let downAudio = document.getElementById('down-audio')
+  downAudio.play()
+}
+
+/**
+ * 播放点击棋子的声音
+ */
+function playClickChessAudio () {
+  let clickAudio = document.getElementById('click-audio')
+  clickAudio.play()
+}
+
+/**
+ * 播放吃掉一个棋子的声音
+ */
+function playEatAudio () {
+  let eatAudio = document.getElementById('eat-audio')
+  eatAudio.play()
+}
+
+/**
+ * 播放将军的声音
+ */
+function playJiangJunAudio () {
+  let jiangJunAudio = document.getElementById('jiang-jun-audio')
+  jiangJunAudio.play()
+}
+
 const mapStateToProps = state => {
   return {
     D: state.diameters.D,
@@ -538,6 +643,7 @@ const mapStateToProps = state => {
     currentStep: state.currentStep,
     history: state.history,
     ableReceiveCoordinates: state.ableReceiveCoordinates,
+    lostPieces: state.lostPieces,
   }
 }
 
@@ -545,6 +651,7 @@ const mapDispatchToProps = dispatch => ({
   setD: (e) => setD(dispatch, e),
   setd: (e) => setd(dispatch, e),
   handleClickChess: (chessCoordinate, chessData, currentStep, history) => handleClickChess(dispatch, chessCoordinate, chessData, currentStep, history),
+  moveChess: (isAbleReceive, currentStep, history, selectedChessCoordinate, dropGuyCoordinate, lostPieces) => moveChess(dispatch, isAbleReceive, currentStep, history, selectedChessCoordinate, dropGuyCoordinate, lostPieces)
 })
 
 export default connect(

@@ -4,3 +4,4 @@ export const UPDATE_SELECTED_CHESS_COORDINATE = 'update_selected_chess_coordinat
 export const SET_CURRENT_STEP = 'set_current_step'
 export const SET_HISTORY = 'set_history'
 export const SET_ABLE_RECEIVE_COORDINATES = 'set_able_receive_coordinates'
+export const SET_LOST_PIECES = 'set_lost_pieces'

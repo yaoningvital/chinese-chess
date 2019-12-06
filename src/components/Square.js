@@ -4,7 +4,7 @@ import Chess from './Chess'
 function Square (props) {
   let {
     D, d, rowIndex, columnIndex, chessData, handleClickChess, selectedChessCoordinate, currentStep, history,
-    isAbleReceive
+    isAbleReceive, moveChess, lostPieces
   } = props
   
   // 设置 落子点 样式
@@ -21,6 +21,7 @@ function Square (props) {
         height: `${D}px`,
         position: squarePosition
       }}
+      onClick={() => moveChess(isAbleReceive, currentStep, history, selectedChessCoordinate, [rowIndex, columnIndex], lostPieces)}
     >
       {
         chessData &&
